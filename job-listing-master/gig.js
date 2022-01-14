@@ -13,7 +13,8 @@ const path=require('path');
 const async = require('async');
 
 const app=express();
-app.set('view engine','ejs');
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'ejs');
 //app.set('views', __dirname);
 
 // app use
@@ -66,8 +67,8 @@ router.post("/api/addGig", (req, res) => {
       });
   });
 
-app.get("/:gigid", (req, res) => {
-    gig.find({
+/*router.get("/:gigid", (req, res) => {
+    Gig.find({
       gigid: req.params.gigid
     },
     function(err, result) {
@@ -75,15 +76,25 @@ app.get("/:gigid", (req, res) => {
         result = JSON.parse(JSON.stringify(result))
         res.render('category', {result});
     });
-  });
+  });*/
 
-app.get("/myGigs", (req, res) => {
-  gig.find({},
+router.get("/myGigs", (req, res) => {
+  Gig.find({},
     function(err,table) {
       if (err) throw err;
-//      console.log(result)
+        //console.log(table)
+        table.forEach(function(result){
+          Gig.find({
+            category: result.category
+          },
+          function(err, table) {
+              if (err) throw err;
+              table = JSON.parse(JSON.stringify(table))
+              res.render('category1', {table});
+          });
+        })
 //      result = JSON.parse(JSON.stringify(result))
-      res.render('category1', {table});
-    });
+//      res.render('category1', {table});
+    })
 });
 module.exports = router;
