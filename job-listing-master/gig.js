@@ -58,7 +58,7 @@ router.post("/api/addGig", (req, res) => {
     var myData = new Gig({gigid:gigid, title:title, lister:lister, description:description, nature:nature, category:category, payscale:payscale, requirements:requirements, datePosted:datePosted, dateExpiry:dateExpiry, address : [{country:country, state:state, district:district, landmark:landmark, street:street}] , overview:overview, dateExpiry:dateExpiry});
     myData.save()
       .then(
-        res.send("item saved to database");
+        res.send("item saved to database")
       )
       .catch(err => {
         console.log(err)
