@@ -5,6 +5,7 @@ const mongoose= require('mongoose');
 const bodyparser=require('body-parser');
 const cookieParser=require('cookie-parser');
 const User = require('./models/user');
+var router = require('./gig.js');
 const Employee = require('./models/employee.js');
 //const imgModel = require('./models/image.js');
 const {auth} =require('./middlewares/auth');
@@ -55,7 +56,7 @@ app.use(bodyparser.json());
 app.use(cookieParser());
 app.use(express.json());  
 app.use(express.static(__dirname));
-
+app.use('/', router);
 
 // Set up Passport
 

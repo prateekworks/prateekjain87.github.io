@@ -33,6 +33,8 @@
     "passport": "^0.5.2",
     "passport-local-mongoose": "^6.1.0",
     "redis": "^3.0.2",
+    "route": "^0.2.5",
+    "routes": "^2.1.0",
     "sharp": "^0.29.3",
     "underscore": "^1.13.2"
   }
