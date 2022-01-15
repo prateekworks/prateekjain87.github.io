@@ -6,6 +6,7 @@ const mongoose= require('mongoose');
 const bodyparser=require('body-parser');
 const cookieParser=require('cookie-parser');
 const Gig = require('./models/gig');
+const Employee = require('./models/employee');
 //const imgModel = require('./models/image.js');
 const {auth} =require('./middlewares/auth');
 const db=require('./config/config').get(process.env.NODE_ENV);
@@ -79,20 +80,17 @@ router.post("/api/addGig", (req, res) => {
   });*/
 
 router.get("/myGigs", (req, res) => {
-  Gig.find({},
+  Employee.find({email: "akijain058@gmail.com"},
+  function(err,result) {
+  console.log(result[0].category)
+  result[0].category.forEach(function(cat){
+    Gig.find({category: cat},
     function(err,table) {
-      if (err) throw err;
-        //console.log(table)
-        table.forEach(function(result){
-          Gig.find({
-            category: result.category
-          },
-          function(err, table) {
-              if (err) throw err;
-              table = JSON.parse(JSON.stringify(table))
-              res.render('category1', {table});
-          });
-        })
+        if (err) throw err;
+        table = JSON.parse(JSON.stringify(table))
+        res.render('category1', {table});
+    });
+    })
 //      result = JSON.parse(JSON.stringify(result))
 //      res.render('category1', {table});
     })
