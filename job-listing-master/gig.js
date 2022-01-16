@@ -80,6 +80,7 @@ router.post("/api/addGig", (req, res) => {
   });*/
 
 router.get("/myGigs", (req, res) => {
+  obj = [];
   Employee.find({email: "akijain058@gmail.com"},
   function(err,result) {
   console.log(result[0].category)
@@ -88,9 +89,15 @@ router.get("/myGigs", (req, res) => {
     function(err,table) {
         if (err) throw err;
         table = JSON.parse(JSON.stringify(table))
-        res.render('category1', {table});
+        obj.push(table[0]);
+        console.log(obj)
+        if (result[0].category.length === obj.length) {
+          console.log(obj)
+          res.render('category1', {obj});
+        }
     });
     })
+
 //      result = JSON.parse(JSON.stringify(result))
 //      res.render('category1', {table});
     })
