@@ -38,7 +38,7 @@ const store = new MongoDBStore({
     collection: "mySessions",
   });
 
-app.use(
+router.use(
     session({
       secret: db.SECRET,
       resave: false,
@@ -54,6 +54,14 @@ app.use(
         res.redirect('http://localhost:8000/signup.html')
     }
   }*/
+
+  const isAuth = (req, res, next) => {
+    if(req.session.isAuth){
+        next()
+    } else {
+        res.redirect('http://localhost:8000/signup.html')
+    }
+  }
 
 router.post("/api/addGig", (req, res) => {
     const { gigid, title, lister, description, nature, category, payscale, street, district, state, country, requirements, datePosted, landmark, dateExpiry, overview } = req.body;
@@ -79,18 +87,16 @@ router.post("/api/addGig", (req, res) => {
     });
   });*/
 
-router.get("/myGigs", (req, res) => {
+/*router.get("/myGigs", isAuth, (req, res) => {
   obj = [];
   Employee.find({email: "akijain058@gmail.com"},
   function(err,result) {
-  console.log(result[0].category)
   result[0].category.forEach(function(cat){
     Gig.find({category: cat},
     function(err,table) {
         if (err) throw err;
         table = JSON.parse(JSON.stringify(table))
         obj.push(table[0]);
-        console.log(obj)
         if (result[0].category.length === obj.length) {
           console.log(obj)
           res.render('category1', {obj});
@@ -101,5 +107,23 @@ router.get("/myGigs", (req, res) => {
 //      result = JSON.parse(JSON.stringify(result))
 //      res.render('category1', {table});
     })
+});*/
+
+router.post("/api/getGigs", (req, res) => {
+  obj = [];
+  var filter = req.body.category;
+  console.log(filter)
+  filter.forEach(function(cat){
+    Gig.find({category: cat},
+    function(err,table) {
+        if (err) throw err;
+        table = JSON.parse(JSON.stringify(table))
+        obj.push(table[0]);
+        if (filter.length === obj.length) {
+          console.log(obj)
+          res.render('category1', {obj});
+        }
+    });
+  })
 });
 module.exports = router;
