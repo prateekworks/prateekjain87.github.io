@@ -111,19 +111,14 @@ router.post("/api/addGig", (req, res) => {
 
 router.post("/api/getGigs", (req, res) => {
   obj = [];
-  var filter = req.body.category;
-  console.log(filter)
-  filter.forEach(function(cat){
-    Gig.find({category: cat},
+  data = JSON.parse(JSON.stringify(req.body));
+  Gig.find(data,
     function(err,table) {
         if (err) throw err;
         table = JSON.parse(JSON.stringify(table))
-        obj.push(table[0]);
-        if (filter.length === obj.length) {
-          console.log(obj)
-          res.render('category1', {obj});
+        console.log(table)
+        res.render('category1', {table});
         }
-    });
-  })
+    );
 });
 module.exports = router;
