@@ -112,6 +112,7 @@ router.post("/api/addGig", (req, res) => {
 router.post("/api/getGigs", (req, res) => {
   obj = [];
   data = JSON.parse(JSON.stringify(req.body));
+  console.log(data)
   Gig.find(data,
     function(err,table) {
         if (err) throw err;

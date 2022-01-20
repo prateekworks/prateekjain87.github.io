@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Intro to Node and MongoDB</title>
+    <script src="cities.js"></script>
   </head>
 
   <body>
@@ -13,6 +14,11 @@
         <input name="payscale" type="checkbox" value="10k">10k</label><br/>
         <input name="payscale" type="checkbox" value="20k">20k</label><br/>
         <input name="payscale" type="checkbox" value="30k">30k</label><br/>
+        <input name="nature" type="checkbox" value="Full-time">Full-time</label><br/>
+        <input name="nature" type="checkbox" value="Part-time">Part-time</label><br/>
+        <select onchange="print_city('address.district', this.selectedIndex);" id="address.state" name ="address.state" class="form-control"></select>
+        <select name="address.district" id ="address.district" class="form-control"></select>
+        <script language="javascript">print_state("address.state");</script><br/><br/>
         <input type="submit" value="Get Gig"/>
     </form>
   </body>
