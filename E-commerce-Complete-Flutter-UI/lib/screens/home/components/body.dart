@@ -16,23 +16,19 @@ class Body extends StatefulWidget {
   @override
   _BodyState createState() => _BodyState();
 }
-const isOnboardingFinished = 'isOnboardingFinished';
-
 class _BodyState extends State<Body> {
-  @override
-  Timer timer;
-  bool isLoading = true;
+  late final Future storedFuture;
 
   @override
   void initState() {
-    gigDetails();
     super.initState();
+     storedFuture = gigDetails();
   }
 
-  Future gigDetails() async {
+  gigDetails() async {
     demoProducts = [];
     print("In Gig");
-    var url = Uri.parse("http://192.168.143.6:3000/api/getGigs");
+    var url = Uri.parse("http://192.168.1.104:3000/api/getGigs");
     final http.Response response = await http.post(
       url,
       headers: <String, String>{
@@ -44,7 +40,7 @@ class _BodyState extends State<Body> {
     );
 
     if (response.statusCode == 200) {
-      print("in reponse");
+      print("in response");
       final DateFormat formatter = DateFormat('yyyy-MM-dd');
       //print(response.body);
       final decoded = json.decode(response.body);
@@ -77,38 +73,16 @@ class _BodyState extends State<Body> {
               state: gig["address"][0]["state"],
               country: gig["address"][0]["country"]))
       );
-      _changePage();
     } else {
-      setState(() {
-        isLoading = false;
-      });
       throw Exception('Failed to create album.');
     }
     print(demoProducts.length);
   }
 
-  _changePage() {
-    Navigator.of(context).pushReplacement(
-      // this is route builder without any animation
-      PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) => HomeScreen(),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return isLoading ? Container() : OnBoarding();
-  }
-}
-
-
-
-
   Widget build(BuildContext context) {
       return SafeArea(
       child: FutureBuilder(
-        future: gigDetails(),
+        future: storedFuture,
         builder: (BuildContext context, snapshot) {
           child:
           switch (snapshot.connectionState) {
