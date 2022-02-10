@@ -62,7 +62,7 @@ router.use(
         res.redirect('http://localhost:8000/signup.html')
     }
   }
-
+/*
 router.post("/api/addGig", (req, res) => {
     const { gigid, title, lister, description, nature, category, payscale, street, district, state, country, requirements, datePosted, landmark, dateExpiry, overview } = req.body;
     var myData = new Gig({gigid:gigid, title:title, lister:lister, description:description, nature:nature, category:category, payscale:payscale, requirements:requirements, datePosted:datePosted, dateExpiry:dateExpiry, address : [{country:country, state:state, district:district, landmark:landmark, street:street}] , overview:overview, dateExpiry:dateExpiry});
@@ -75,17 +75,18 @@ router.post("/api/addGig", (req, res) => {
         res.status(400).send("unable to save to database");
       });
   });
-
-/*router.get("/:gigid", (req, res) => {
+*/
+router.get("/:gigid", (req, res) => {
+    console.log("API being hit")
     Gig.find({
       gigid: req.params.gigid
     },
     function(err, result) {
         if (err) throw err;
         result = JSON.parse(JSON.stringify(result))
-        res.render('category', {result});
+        res.send(result);
     });
-  });*/
+  });
 
 /*router.get("/myGigs", isAuth, (req, res) => {
   obj = [];
@@ -110,6 +111,7 @@ router.post("/api/addGig", (req, res) => {
 });*/
 
 router.post("/api/getGigs", (req, res) => {
+  console.log("Called")
   obj = [];
   data = JSON.parse(JSON.stringify(req.body));
   console.log(data)
@@ -118,7 +120,8 @@ router.post("/api/getGigs", (req, res) => {
         if (err) throw err;
         table = JSON.parse(JSON.stringify(table))
         console.log(table)
-        res.render('category1', {table});
+        res.json(table)
+        //res.render('category1', {table});
         }
     );
 });
