@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shop_app/models/Product.dart';
 import 'package:shop_app/screens/details/details_screen.dart';
-
+import 'dart:math';
 import '../constants.dart';
 import '../size_config.dart';
+Random random = new Random();
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -41,7 +42,7 @@ class ProductCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Hero(
-                    tag: product.id.toString(),
+                    tag: random.nextInt(100).toString(),
                     child: Image.asset(product.images[0]),
                   ),
                 ),

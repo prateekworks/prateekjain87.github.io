@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shop_app/screens/home/components/art_category.dart';
+import 'package:shop_app/screens/home/components/domestic_category.dart';
 
 import '../../../size_config.dart';
+import 'CategorySelection.dart';
 
 class Categories extends StatelessWidget {
   @override
@@ -10,7 +13,7 @@ class Categories extends StatelessWidget {
       {"icon": "assets/icons/Flash Icon.svg", "text": "Art"},
       {"icon": "assets/icons/Game Icon.svg", "text": "Domestic"},
       {"icon": "assets/icons/Bill Icon.svg", "text": "Events"},
-      {"icon": "assets/icons/Gift Icon.svg", "text": "Daily Wage"},
+      {"icon": "assets/icons/Gift Icon.svg", "text": "DailyWage"},
       {"icon": "assets/icons/Discover.svg", "text": "Misc"},
     ];
     return Padding(
@@ -23,7 +26,10 @@ class Categories extends StatelessWidget {
           (index) => CategoryCard(
             icon: categories[index]["icon"],
             text: categories[index]["text"],
-            press: () {},
+            press: () {
+              print(categories[index]["text"]);
+              Navigator.pushNamed(context, Domestic.routeName,  arguments: {'exampleArgument': categories[index]["text"]},);
+            },
           ),
         ),
       ),

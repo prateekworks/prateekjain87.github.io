@@ -26,7 +26,6 @@ class PopularProducts extends StatelessWidget {
                 demoProducts.length,
                 (index) {
                   if (demoProducts[index].isPopular)
-                    print(demoProducts[index].id);
                     return ProductCard(product: demoProducts[index]);
 
                   return SizedBox
