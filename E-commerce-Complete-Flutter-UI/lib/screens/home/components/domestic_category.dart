@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shop_app/components/category_card.dart';
 import 'package:shop_app/models/Product.dart';
 import 'package:shop_app/components/product_card.dart';
 
@@ -13,7 +14,7 @@ class Domestic extends StatelessWidget {
           ? ListView.builder(
         itemCount: item,
         itemBuilder: (context, position) {
-          return ProductCard(product: demoProducts[item-1]);
+          return CategoryCard(product: demoProducts[item-1]);
           // return Card(
           //   child: Padding(
           //     padding: const EdgeInsets.all(25.0),
