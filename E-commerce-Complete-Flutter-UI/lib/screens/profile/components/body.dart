@@ -1,4 +1,11 @@
+
+
 import 'package:flutter/material.dart';
+import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
+import 'package:shop_app/screens/sign_in/components/sign_form.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shop_app/screens/home/home_screen.dart';
+import 'package:shop_app/screens/splash/splash_screen.dart';
 
 import 'profile_menu.dart';
 import 'profile_pic.dart';
@@ -35,10 +42,20 @@ class Body extends StatelessWidget {
           ProfileMenu(
             text: "Log Out",
             icon: "assets/icons/Log out.svg",
-            press: () {},
+            press: () {
+              logoutUser(context);
+            },
           ),
         ],
       ),
     );
   }
 }
+
+Future<void> logoutUser(context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => SplashScreen()),);
+    Navigator.of(context)
+    .pushNamedAndRemoveUntil(SplashScreen.routeName, (Route<dynamic> route) => false);
+} 

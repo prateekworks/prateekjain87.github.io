@@ -1,34 +1,66 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shop_app/components/custom_surfix_icon.dart';
 import 'package:shop_app/components/default_button.dart';
 import 'package:shop_app/components/form_error.dart';
-import 'package:shop_app/screens/complete_profile/complete_profile_screen.dart';
-import 'package:shop_app/screens/home/home_screen.dart';
-import 'package:shop_app/screens/otp/otp_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shop_app/components/no_account_text.dart';
+import 'package:shop_app/screens/forgot_password_confirm/forgotpasssecond.dart';
+import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
+import 'package:shop_app/screens/sign_up/components/sign_up_form.dart';
+import 'package:shop_app/size_config.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
-import '../../../../constants.dart';
-import '../../../../size_config.dart';
 
-class CompleteProfileForm extends StatefulWidget {
+import '../../../constants.dart';
+
+class Body extends StatelessWidget {
   @override
-  _CompleteProfileFormState createState() => _CompleteProfileFormState();
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding:
+              EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+          child: Column(
+            children: [
+              SizedBox(height: SizeConfig.screenHeight * 0.04),
+              Text(
+                "Forgot Password",
+                style: TextStyle(
+                  fontSize: getProportionateScreenWidth(28),
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                "Enter new password & OTP",
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: SizeConfig.screenHeight * 0.1),
+              ForgotPassForm1(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _CompleteProfileFormState extends State<CompleteProfileForm> {
+class ForgotPassForm1 extends StatefulWidget {
+  @override
+  _ForgotPassFormState createState() => _ForgotPassFormState();
+}
+
+class _ForgotPassFormState extends State<ForgotPassForm1> {
   final _formKey = GlobalKey<FormState>();
-  String? firstname;
-  String? lastname;
-  String? phoneNumber;
-  String? email;
+  //List<String> errors = [];
   String? password;
   String? password2;
   String? otp;
+  String? email;
+
   final List<String?> errors = [];
 
   void addError({String? error}) {
@@ -44,19 +76,12 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
         errors.remove(error);
       });
   }
-
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
       child: Column(
         children: [
-          buildFirstNameFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
-          buildLastNameFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
-          buildPhoneNumberFormField(),
-          SizedBox(height: getProportionateScreenHeight(30)),
           buildEmailFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
           buildPasswordFormField(),
@@ -73,52 +98,19 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
             press: () {
               if (_formKey.currentState!.validate()) {        
                 _formKey.currentState!.save();
-                verifyotp(otp, firstname, lastname, email, password, password2, context);
+                confotp(email, otp, password, password2, context);
                // Navigator.pushNamed(context, OtpScreen.routeName);
               }
             },
           ),
+          SizedBox(height: SizeConfig.screenHeight * 0.1),
+          NoAccountText(),
         ],
       ),
     );
   }
 
- 
-
-  TextFormField buildEmailFormField() {
-    return TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      onSaved: (newValue) => email = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kEmailNullError);
-        } else if (emailValidatorRegExp.hasMatch(value)) {
-          removeError(error: kInvalidEmailError);
-        }
-        return null;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kEmailNullError);
-          return "";
-        } else if (!emailValidatorRegExp.hasMatch(value)) {
-          addError(error: kInvalidEmailError);
-          return "";
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: "Email",
-        hintText: "Enter your email",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
-      ),
-    );
-  }
-
-    TextFormField buildOtpFormField() {
+  TextFormField buildOtpFormField() {
     return TextFormField(
       obscureText: true,
       onSaved: (newValue) => otp = newValue!,
@@ -217,90 +209,53 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
     );
   }
 
-  TextFormField buildPhoneNumberFormField() {
+  TextFormField buildEmailFormField() {
     return TextFormField(
-      keyboardType: TextInputType.phone,
-      onSaved: (newValue) => phoneNumber = newValue,
+      keyboardType: TextInputType.emailAddress,
+      onSaved: (newValue) => email = newValue,
       onChanged: (value) {
         if (value.isNotEmpty) {
-          removeError(error: kPhoneNumberNullError);
+          removeError(error: kEmailNullError);
+        } else if (emailValidatorRegExp.hasMatch(value)) {
+          removeError(error: kInvalidEmailError);
         }
         return null;
       },
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kPhoneNumberNullError);
+          addError(error: kEmailNullError);
+          return "";
+        } else if (!emailValidatorRegExp.hasMatch(value)) {
+          addError(error: kInvalidEmailError);
           return "";
         }
         return null;
       },
       decoration: InputDecoration(
-        labelText: "Phone Number",
-        hintText: "Enter your phone number",
+        labelText: "Email",
+        hintText: "Enter your email",
         // If  you are using latest version of flutter then lable text and hint text shown like this
         // if you r using flutter less then 1.20.* then maybe this is not working properly
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Phone.svg"),
+        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
       ),
     );
   }
 
-  TextFormField buildLastNameFormField() {
-    return TextFormField(
-      onSaved: (newValue) => lastname = newValue,
-      decoration: InputDecoration(
-        labelText: "Last Name",
-        hintText: "Enter your last name",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/User.svg"),
-      ),
-    );
-  }
-
-  TextFormField buildFirstNameFormField() {
-    return TextFormField(
-      onSaved: (newValue) => firstname = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kNamelNullError);
-        }
-        return null;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kNamelNullError);
-          return "";
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: "First Name",
-        hintText: "Enter your first name",
-        // If  you are using latest version of flutter then lable text and hint text shown like this
-        // if you r using flutter less then 1.20.* then maybe this is not working properly
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/User.svg"),
-      ),
-    );
-  }
 }
 
 
-verifyotp(otp, firstname, lastname, email, password, password2, context) async {
+confotp(email, otp, password, password2, context) async {
   print("called");
-  var url = Uri.parse("http://192.168.0.109:3000/api/verify"); // iOS
+  var url = Uri.parse("http://192.168.0.109:3000/api/passchangeverify"); // iOS
   final http.Response response = await http.post(
     url,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
-      'otp': otp,
-      'firstname': firstname,
-      'lastname': lastname,
       'email': email,
+      'otp': otp,
       'password': password,
       'password2': password2,
       
@@ -318,9 +273,9 @@ verifyotp(otp, firstname, lastname, email, password, password2, context) async {
 
   if (response.statusCode == 200) {
       Navigator.of(context).pop();
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()),);
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool("isLoggedIn", true);
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => SignInScreen()),);
+      //SharedPreferences prefs = await SharedPreferences.getInstance();
+      //prefs.setBool("isLoggedIn", true);
       print(response.body);
   } else {
     //Navigator.pushNamed(context, SignInScreen.routeName);

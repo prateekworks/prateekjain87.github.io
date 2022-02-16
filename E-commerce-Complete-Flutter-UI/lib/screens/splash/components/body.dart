@@ -1,7 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shop_app/constants.dart';
 import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
 import 'package:shop_app/size_config.dart';
+
+import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
+import 'package:shop_app/screens/sign_in/components/sign_form.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shop_app/screens/home/home_screen.dart';
 
 // This is the best practice
 import '../components/splash_content.dart';
@@ -13,19 +20,25 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    startTimer();
+  }
   int currentPage = 0;
   List<Map<String, String>> splashData = [
     {
-      "text": "Welcome to GigDunia, Let’s roll!",
+      "text": "Welcome to Tokoto, Let’s shop!",
       "image": "assets/images/splash_1.jpg"
     },
-    {
+    { 
       "text":
-          "We help people find gigs \nacross the parts of India ",
+          "We help people conect with store \naround United State of America",
       "image": "assets/images/splash_2.png"
     },
     {
-      "text": "We show the easy way to find work. \nJust stay productive with us",
+      "text": "We show the easy way to shop. \nJust stay at home with us",
       "image": "assets/images/splash_3.png"
     },
   ];
@@ -34,7 +47,7 @@ class _BodyState extends State<Body> {
     return SafeArea(
       child: SizedBox(
         width: double.infinity,
-        child: Column(
+        child: Column(  
           children: <Widget>[
             Expanded(
               flex: 3,
@@ -67,12 +80,12 @@ class _BodyState extends State<Body> {
                       ),
                     ),
                     Spacer(flex: 3),
-                    DefaultButton(
+                    /*DefaultButton(
                       text: "Continue",
                       press: () {
                         Navigator.pushNamed(context, SignInScreen.routeName);
                       },
-                    ),
+                    ),*/
                     Spacer(),
                   ],
                 ),
@@ -95,5 +108,24 @@ class _BodyState extends State<Body> {
         borderRadius: BorderRadius.circular(3),
       ),
     );
+  }
+
+  void startTimer() {
+    Timer(Duration(seconds: 1), () {
+      navigateUser(); //It will redirect  after 3 seconds
+    });
+  }
+
+  void navigateUser() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var status = prefs.getBool('isLoggedIn') ?? false;
+    print(status);
+    if (status) {
+      //Navigator.pushReplacement(context, HomeScreen());
+       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()),);
+    } else {
+      //Navigator.pushReplacement(context, SignInScreen());
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => SignInScreen()),);
+    }
   }
 }

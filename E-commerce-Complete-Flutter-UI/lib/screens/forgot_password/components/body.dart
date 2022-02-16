@@ -1,9 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shop_app/components/custom_surfix_icon.dart';
 import 'package:shop_app/components/default_button.dart';
 import 'package:shop_app/components/form_error.dart';
 import 'package:shop_app/components/no_account_text.dart';
+import 'package:shop_app/screens/forgot_password_confirm/forgotpasssecond.dart';
+import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
+import 'package:shop_app/screens/sign_up/components/sign_up_form.dart';
 import 'package:shop_app/size_config.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../constants.dart';
 
@@ -28,7 +35,7 @@ class Body extends StatelessWidget {
                 ),
               ),
               Text(
-                "Please enter your email and we will send \nyou a link to return to your account",
+                "Please enter your email and we will send \nyou an OTP to your account",
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: SizeConfig.screenHeight * 0.1),
@@ -101,7 +108,9 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
             text: "Continue",
             press: () {
               if (_formKey.currentState!.validate()) {
+                _formKey.currentState!.save();
                 // Do what you want to do
+                changeotp(email, context);
               }
             },
           ),
@@ -110,5 +119,44 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
         ],
       ),
     );
+  }
+}
+
+
+changeotp(email, context) async {
+  print("called");
+  var url = Uri.parse("http://192.168.0.109:3000/api/passchangesend"); // iOS
+  final http.Response response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String?, String?>{
+      'email': email,
+    }),
+  );
+
+  /*if (response.statusCode == 200) {
+    print(response.body);
+  } else {
+    throw Exception('Failed to create album.');
+  }*/
+
+  if (response.statusCode == 200) {
+      //Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ForgotPasswordScreenConfirm()),);
+      print(response.body);
+  } else {
+    //Navigator.pushNamed(context, SignInScreen.routeName);
+    print(response.body);
+    final message = jsonDecode(response.body);
+    Fluttertoast.showToast(
+      msg: message['message'],
+      backgroundColor: Colors.grey,
+      fontSize: 25,
+      gravity: ToastGravity.TOP, 
+      textColor: Colors.pink
+      );
+    throw Exception('Failed to create album.');
   }
 }

@@ -10,6 +10,7 @@ import 'discount_banner.dart';
 import 'home_header.dart';
 import 'popular_product.dart';
 import 'special_offers.dart';
+import 'fab.dart';
 
 
 class Body extends StatefulWidget {
@@ -28,7 +29,7 @@ class _BodyState extends State<Body> {
   gigDetails() async {
     demoProducts = [];
     print("In Gig");
-    var url = Uri.parse("http://192.168.1.104:3000/api/getGigs");
+    var url = Uri.parse("http://192.168.0.109:3000/api/getGigs");
     final http.Response response = await http.post(
       url,
       headers: <String, String>{
@@ -147,5 +148,5 @@ class _BodyState extends State<Body> {
         }
         )
       );
-  }
+  } 
 }

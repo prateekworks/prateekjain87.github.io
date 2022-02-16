@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shop_app/components/custom_surfix_icon.dart';
 import 'package:shop_app/components/default_button.dart';
 import 'package:shop_app/components/form_error.dart';
 import 'package:shop_app/screens/complete_profile/complete_profile_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../constants.dart';
 import '../../../size_config.dart';
@@ -43,18 +48,20 @@ class _SignUpFormState extends State<SignUpForm> {
         children: [
           buildEmailFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
-          buildPasswordFormField(),
+          /*buildPasswordFormField(),
           SizedBox(height: getProportionateScreenHeight(30)),
           buildConformPassFormField(),
+         
+          SizedBox(height: getProportionateScreenHeight(40)),*/
           FormError(errors: errors),
-          SizedBox(height: getProportionateScreenHeight(40)),
           DefaultButton(
             text: "Continue",
             press: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+                sendotp(email,context);
                 // if all are valid then go to success screen
-                Navigator.pushNamed(context, CompleteProfileScreen.routeName);
+                //Navigator.pushNamed(context, CompleteProfileScreen.routeName);
               }
             },
           ),
@@ -162,3 +169,46 @@ class _SignUpFormState extends State<SignUpForm> {
     );
   }
 }
+
+sendotp(email,context) async {
+  print("called");
+  var url = Uri.parse("http://192.168.0.109:3000/api/send"); // iOS
+  final http.Response response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'email': email,
+    }),
+  );
+
+  /*if (response.statusCode == 200) {
+    print(response.body);
+  } else {
+    throw Exception('Failed to create album.');
+  }*/
+
+  if (response.statusCode == 200) {
+      //Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => CompleteProfileScreen()),);
+      print(response.body);
+  } else {
+    //Navigator.pushNamed(context, SignInScreen.routeName);
+    print(response.body);
+    final message = jsonDecode(response.body);
+    Fluttertoast.showToast(
+      msg: message['message'],
+      backgroundColor: Colors.grey,
+      fontSize: 25,
+      gravity: ToastGravity.TOP, 
+      textColor: Colors.pink
+      );
+    throw Exception('Failed to create album.');
+  }
+
+
+}
+
+
+

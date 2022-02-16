@@ -7,7 +7,7 @@ const cookieParser=require('cookie-parser');
 const User = require('./models/user');
 var router = require('./gig.js');
 const Employee = require('./models/employee.js');
-//const imgModel = require('./models/image.js');
+const imgModel = require('./models/image.js');
 const {auth} =require('./middlewares/auth');
 const db=require('./config/config').get(process.env.NODE_ENV);
 const nodemailer=require('nodemailer');
@@ -17,8 +17,8 @@ const async = require('async');
 const multer=require('multer');
 var fs = require('fs');
 var _ = require('underscore');
-const sharp = require('sharp');
-
+var sharp = require('sharp');
+const Gig = require('./models/gig');
 
 
 
@@ -58,7 +58,6 @@ app.use(express.json());
 app.use(express.static(__dirname));
 app.use('/', router);
 
-// Set up Passport
 
 
 
@@ -79,6 +78,7 @@ const store = new MongoDBStore({
       resave: false,
       saveUninitialized: true,
       store: store,
+      maxAge:6000,
     })
   );
 
@@ -86,12 +86,13 @@ const store = new MongoDBStore({
     if(req.session.isAuth){
         next()
     } else {
-        res.redirect('http://localhost:8000/signup.html')
+        res.redirect('http://localhost:8000/signup.html#login')
     }
   }
 
 // login user
  app.post('/api/login', function(req,res){
+    console.log("you hit the login");
     let token=req.cookies.auth;
     User.findByToken(token,(err,user)=>{
         if(err) return  res(err);
@@ -102,32 +103,33 @@ const store = new MongoDBStore({
     
         else{
             User.findOne({'email':req.body.email},function(err,user){
-                if(!user) return res.json({isAuth : false, message : ' Auth failed ,email not found'});
+                if(!user) return res.status(400).json({isAuth : false, message : ' Auth failed ,email not found'});
+            
         
-                user.comparepassword(req.body.password,(err,isMatch)=>{
-                    if(!isMatch) return res.json({ isAuth : false,message : "password doesn't match"});
+            user.comparepassword(req.body.password,(err,isMatch)=>{
+                if(!isMatch) return res.status(400).json({ isAuth : false, message : "Password doesn't match"});
+            //});
         
-                user.generateToken((err,user)=>{
-                    if(err) return res.status(400).send(err);
-                   // res.cookie('auth',user.token).json({
-                   //     isAuth : true,
-                  //      id : user._id
-                   //     ,email : user.email
-                        
-                  //  });
+            user.generateToken((err,user)=>{
+                if(err) return res.status(400).send(err);
+                res.cookie('auth',user.token).json({
+                    isAuth : true,
+                    id : user._id,
+                    email : user.email  
+            });
                     req.session.isAuth = true;
                     //res.render('profile'); 
-                    res.redirect('http://localhost:8000/category.html')
-                });   
-            });
-          });
-        }
+                    //res.redirect('http://192.168.0.109:8000/category.html')
+            });   
+        });  
+        });
+    }
     });
 });
-/*
+
 app.get("/profile", isAuth, (req,res) => {
     res.render("profile");
-}); 
+});
 
 
 
@@ -141,7 +143,7 @@ app.get("/profile", isAuth, (req,res) => {
             name: req.user.firstname + req.user.lastname
             
         })
-}); */
+});
 
 app.post('/api/logout', (req,res) => {
     req.session.destroy((err) => {
@@ -181,16 +183,6 @@ app.post('/api/glogin', (req,res)=>{
   }).
   catch(console.error);
 })
-
-/*
-app.get('/api/profilee', checkAuthenticated, (req, res)=>{
-    let user = req.user;
-    res.redirect('http://localhost:8000/category.html')
-})  
-
-app.get('/api/protectedRoute', checkAuthenticated, (req,res)=>{
-    res.send('This route is protected')
-}) */
 
 app.get('/api/glogout', (req, res)=>{
     res.clearCookie('session-token');
@@ -247,12 +239,16 @@ let transporter = nodemailer.createTransport({
 app.post('/api/send',function(req,res){
     email=req.body.email;
     
+    User.findOne({'email':req.body.email},function(err,user){
+        if(user) return res.status(400).json({isAuth : false, message : ' Email already registered, Please Login!'});
+    else {
+
     // generate the otp
     var otp = Math.random();
     otp = otp * 1000000;
     otp = parseInt(otp);
     console.log(otp);
-
+    
     // set otp in redis (with email as key) with expiration time(5 mins)
     client.setex(req.body.email, 3000000, otp);    
 
@@ -270,154 +266,167 @@ app.post('/api/send',function(req,res){
         console.log('Message sent: %s', info.messageId);   
         console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
         
-        res.redirect('http://localhost:8000/signupverify.html');
+        //w res.redirect('http://localhost:8000/signup-verify.html');
+        res.status(200).json({
+            otp:otp,
+        });
     });
+     }
+     });
 });
 
-app.post('/api/verify', usercreate,function(req,res){
+
+app.post('/api/verify', function(req,res){
 
     // check if otp exists in redis (else send message otp expired)
     client.keys('*', (err, keys) => {
-        if (err) res.render('otp',{msg : 'An error occurred!'});
+        if (err)  res.send('An error occured'); //res.render('otp',{msg : 'An error occurred!'});
         if(keys){
             console.log(keys.length);
-            
+            console.log(req.body.otp);
             let flag = 0;
-            for(let i = 0; i<keys.length; i++){
-                client.get(keys[i], (err, value) => {
+            // for(let i = 0; i<keys.length; i++){
+               // client.get(keys[i], (err, value) => {
+            client.get(req.body.email, (err, value) => {
+                if (err) res.json({message:"error"});// (res.render('otp',{msg : 'An error occurred!'});
 
-                    if (err) res.render('otp',{msg : 'An error occurred!'});
-
-                    if(value === req.body.otp){
-                        flag = 1;
-                        next();
-                                            
-                                      }
-                     });
-                    
-             
-            }
-            
-         
-
-            if(flag === 0)
-                res.render('otp',{msg : 'Incorrect OTP!'});
+                if(value === req.body.otp){
+                    flag = 1;
+                    console.log("Successfully registered");
+                    usercreate(req,res); 
+                }
+                if(flag == 0){ 
+                    res.status(400).json({ auth : false, message :"Incorrect OTP"});
+                }
+            });
+            //}
+              //  res.render('otp',{msg : 'Incorrect OTP!'});
 
         }else{
-            res.render('otp',{msg : 'Error fetchin OTP!'});
+            //res.render('otp',{msg : 'Error fetchin OTP!'});
+            res.send('Error');
         }
     });
 
-});  
-function usercreate(req, res, next) {
+});     
+function usercreate(req,res) {
     const newuser=new User(req.body);
-    console.log(newuser);
- 
+    
     if(newuser.password!=newuser.password2)return res.status(400).json({message: "password not match"});
     
     User.findOne({email:newuser.email},function(err,user){
         if(user) return res.status(400).json({ auth : false, message :"email exits"});
  
         newuser.save((err,doc)=>{
-            if(err) {console.log(err);
-                return res.status(400).json({ success : false});}
-            /*res.status(200).json({
+            if(err) {
+                console.log(err);
+                return res.status(401).json({ success : false });
+            }
+            res.status(200).json({
                 succes:true,
                 user : doc
-            });*/
-            res.redirect("http://localhost:8000/signup.html");
+            });
+          });
         });
-       });
-       
+       //});   
     }
 
-    app.post('/api/passchangesend',function(req,res){
-        email=req.body.email;
+
+
+app.post('/api/passchangesend',function(req,res){
+    console.log("aaya");
+    email=req.body.email;
         
+    User.findOne({'email':req.body.email},function(err,user){
+      if(!user) return res.status(400).json({isAuth : false, message : ' No such email registered, Please SignUp!'});
+    else {
         // generate the otp
-        var otp = Math.random();
-        otp = otp * 1000000;
-        otp = parseInt(otp);
-        console.log(otp);
+      var otp = Math.random();
+      otp = otp * 1000000;
+      otp = parseInt(otp);
+      console.log(otp);
     
         // set otp in redis (with email as key) with expiration time(5 mins)
-        client.setex(req.body.email, 3000000, otp);    
+      client.setex(req.body.email, 3000000, otp);    
     
          // send mail with defined transport object
-        var mailOptions={
-           to: req.body.email,
-           subject: "Otp for registration is: ",
-           html: "<h3>OTP for account verification is </h3>"  + "<h1 style='font-weight:bold;'>" + otp +"</h1>" // html body
-         };
+      var mailOptions={
+        to: req.body.email,
+        subject: "Otp for registration is: ",
+        html: "<h3>OTP for account verification is </h3>"  + "<h1 style='font-weight:bold;'>" + otp +"</h1>" // html body
+      };
          
-         transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                return console.log(error);
-            }
-            console.log('Message sent: %s', info.messageId);   
-            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-            
-            res.redirect('http://localhost:8000/passchange-verify.html');
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);   
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+         
+        //res.redirect('http://localhost:8000/passchange-verify.html');
+        res.status(200).json({
+          otp:otp,
         });
-    });   
-    
-    app.post('/api/passchangeverify', updatepassword,function(req,res){
+       });
+      }
+   }); 
+});  
 
+app.post('/api/passchangeverify',function(req,res){
+    
         // check if otp exists in redis (else send message otp expired)
-        client.keys('*', (err, keys) => {
-            if (err) res.render('otp',{msg : 'An error occurred!'});
-            if(keys){
-                console.log(keys.length);
-                
-                let flag = 0;
-                for(let i = 0; i<keys.length; i++){
-                    client.get(keys[i], (err, value) => {
-    
-                        if (err) res.render('otp',{msg : 'An error occurred!'});
-    
-                        if(value === req.body.otp){
-                            flag = 1;
-                            next();
-                                                
-                                          }
-                         });
-                        
-                 
-                }
-                
-             
-    
-                if(flag === 0)
-                    res.render('otp',{msg : 'Incorrect OTP!'});
-    
-            }else{
-                res.render('otp',{msg : 'Error fetchin OTP!'});
-            }
-        });
-    
-    });  
+    client.keys('*', (err, keys) => {
+        if (err)  res.send('An error occured'); //res.render('otp',{msg : 'An error occurred!'});
+        if(keys){
+            console.log(keys.length);
+            console.log(req.body.otp);
+            let flag = 0;
+            
+            client.get(req.body.email, (err, value) => {
+                if (err) res.json({message:"error"});// (res.render('otp',{msg : 'An error occurred!'});
 
-    function updatepassword(req, res, next) {
-        const newuser=new User(req.body);
+                if(value === req.body.otp){
+                    flag = 1;
+                    console.log("Password Changed!");
+                    updatepassword(req,res); 
+                }
+                if(flag == 0){
+                    console.log("galat jawab"); 
+                    res.status(400).json({ auth : false, message :"Incorrect OTP"});
+                }
+            });
+            //}
+                //  res.render('otp',{msg : 'Incorrect OTP!'});
+
+        }else{
+            //res.render('otp',{msg : 'Error fetchin OTP!'});
+            res.send('Error');
+        }
+    });
+    
+});  
+
+
+function updatepassword(req, res) {
+    const newuser=new User(req.body);
      
-        if(newuser.password!=newuser.password2)return res.status(400).json({message: "password not match"});
+    if(newuser.password!=newuser.password2)return res.status(400).json({message: "password not match"});
         
-        User.findOne({email:newuser.email},function(err,user){
-            if(err) {console.log(err);
-                return res.status(400).json({ success : false});}
+    User.findOne({email:newuser.email},function(err,user){
+        if(err) {console.log(err);
+        return res.status(400).json({ success : false});}
         
-            const obj = { 
-                password : newuser.password
+        const obj = { 
+            password : newuser.password
+        }
+        user = _.extend(user, obj);
+        user.save((err,result)=>{
+            if(err) {
+              return res.status(400).json({error: "reset password error"});
+            } else {
+              return res.status(200).json({message: "Your password has been changed."})
             }
-            user = _.extend(user, obj);
-            user.save((err,result) =>{
-                if(err) {
-                    return res.status(400).json({error: "reset password error"});
-                }
-                else {
-                    return res.status(200).json({message: "Your password has been changed."})
-                }
-            })
+        })
 
             //return res.status(200).json({ auth : false, message :"email exits"});
             
@@ -425,11 +434,10 @@ function usercreate(req, res, next) {
                 if(err) {console.log(err);
                     return res.status(400).json({ success : false});}
                 res.redirect("http://localhost:8000/signup.html");
-            }); */
-           });
-        
-           
-        }
+            }); 
+           });*/   
+    }
+)};
 // app.post('/resend',function(req,res){
 
 //     // generate a new otp, save it in redis and then send it
@@ -461,7 +469,7 @@ function usercreate(req, res, next) {
 
 // });
 
-app.get("/api/:email", isAuth, (req,res) => {
+app.get("/api/:email", isAuth , (req,res) => {
     Employee.find({
         email: req.params.email
     }, 
@@ -482,7 +490,8 @@ var storage = multer.diskStorage({
         cb(null, 'uploads')
     },
     filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now())
+        //cb(null, file.fieldname + '-' + Date.now())
+        cb(null, file.fieldname + '-' + req.body.email)
     }
 });
   
@@ -500,14 +509,23 @@ app.get('/2', (req, res) => {
     });
 });
 
-app.post('/api/addEmployee', upload.single('image'), (req, res, next) => {
+app.post('/api/addEmployee', upload.single('image'), async (req, res, next) => {
     const { firstname, lastname, email, dob, userid, category, intro, joiningdate, img} = req.body;
-
+    try {  
+        await sharp(__dirname + '/uploads' + '/image-'+ req.body.email)
+        .resize({width: 615, height: 350})
+        .toFile(__dirname + '/uploads/' + req.body.email + '-mew');}
+        catch (error) {
+            console.log('le error',error);
+        }
+    
     var myData = new Employee({firstname:firstname, lastname:lastname, email:email, dob:dob, userid:userid, category:category, joiningdate:joiningdate, img: {
-        data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
+        data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.body.email + '-mew')),
         contentType: 'image/png'
     }
-});
+    });
+
+    
     myData.save()
       .then(item => {
         res.send("item saved to database");
@@ -516,9 +534,24 @@ app.post('/api/addEmployee', upload.single('image'), (req, res, next) => {
         console.log(err)
         res.status(400).send("unable to save to database");
       });
+    
   });
 
 
+
+  app.post('/api/giglist',function(req,res){
+    category=req.body.category;
+    
+    Gig.findOne({'category':req.body.category},function(err,gig){
+        if(gig) return res.status(200).json({Gig});
+    /*else {
+
+    }*/
+    });
+});
+
+      
+  
 // listening port
 const PORT=process.env.PORT||3000;
 app.listen(PORT,()=>{
