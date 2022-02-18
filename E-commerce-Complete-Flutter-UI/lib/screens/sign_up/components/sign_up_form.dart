@@ -172,7 +172,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
 sendotp(email,context) async {
   print("called");
-  var url = Uri.parse("http://192.168.0.109:3000/api/send"); // iOS
+  var url = Uri.parse("http://192.168.1.104:3000/api/send"); // iOS
   final http.Response response = await http.post(
     url,
     headers: <String, String>{

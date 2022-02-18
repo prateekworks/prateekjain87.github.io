@@ -35,7 +35,7 @@ class CategoryCard extends StatelessWidget {
         //padding: new EdgeInsets.only(top: 15.0),
           child: Row(mainAxisSize: MainAxisSize.max,children:[
             new Container(
-                padding: new EdgeInsets.only(top: 10.0),
+                padding: new EdgeInsets.only(top: 5.0),
             //crossAxisAlignment: CrossAxisAlignment.start,
             //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             //children: [
@@ -56,67 +56,84 @@ class CategoryCard extends StatelessWidget {
 
                 ),
                   SizedBox(width: 10),
-              Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(height: 15),
-                    Text("This is sample text to check ",
-                      //product.title,
-                      style: TextStyle(color: Colors.black),
-                      maxLines: 2,
-                    ),
-                    SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          "\$${product.price}",
-                          style: TextStyle(
-                            fontSize: getProportionateScreenWidth(18),
-                            fontWeight: FontWeight.w600,
-                            color: kPrimaryColor,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(height: 5),
+                      Text("This is sample text to check ",
+                        //product.title,
+                        style: TextStyle(color: Colors.black),
+                        maxLines: 2,
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "${product.district}",
+                            style: TextStyle(
+                                color: Colors.black),
+                                maxLines: 2,
                           ),
-                        ),
-                        SizedBox(width: 120),
-                        InkWell(
-                          borderRadius: BorderRadius.circular(50),
-                          onTap: () {},
-                          child: Container(
-                            padding: EdgeInsets.all(getProportionateScreenWidth(7)),
-                            height: getProportionateScreenWidth(28),
-                            width: getProportionateScreenWidth(28),
-                            //alignment: Alignment.bottomRight,
-                            decoration: BoxDecoration(
-                              color: product.isFavourite
-                                  ? kPrimaryColor.withOpacity(0.15)
-                                  : kSecondaryColor.withOpacity(0.1),
-                              shape: BoxShape.circle,
-
+                          SizedBox(width: 20),
+                          Text(
+                            //"${product.nature}",
+                            "Full-time",
+                            style: TextStyle(
+                                color: Colors.black),
+                            maxLines: 2,
                             ),
-                            child: SvgPicture.asset(
-                              "assets/icons/Heart Icon_2.svg",
-                              color: product.isFavourite
-                                  ? Color(0xFFFF4848)
-                                  : Color(0xFFDBDEE4),
-                            ),
-                          ),
-                        )],),
-                    Column(
-                        children:[
-                          SizedBox(height: 30)
                         ]
-                    )
-                  ],
-              )]
-              ),
+                      ),
 
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            "\$${product.price}",
+                            style: TextStyle(
+                              fontSize: getProportionateScreenWidth(18),
+                              fontWeight: FontWeight.w600,
+                              color: kPrimaryColor,
+                            ),
+                          ),
+                          SizedBox(width: 120),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(50),
+                            onTap: () {},
+                            child: Container(
+                              padding: EdgeInsets.all(getProportionateScreenWidth(7)),
+                              height: getProportionateScreenWidth(28),
+                              width: getProportionateScreenWidth(28),
+                              //alignment: Alignment.bottomRight,
+                              decoration: BoxDecoration(
+                                color: product.isFavourite
+                                    ? kPrimaryColor.withOpacity(0.15)
+                                    : kSecondaryColor.withOpacity(0.1),
+                                shape: BoxShape.circle,
+
+                              ),
+                              child: SvgPicture.asset(
+                                "assets/icons/Heart Icon_2.svg",
+                                color: product.isFavourite
+                                    ? Color(0xFFFF4848)
+                                    : Color(0xFFDBDEE4),
+                              ),
+                            ),
+                          )],),
+                      Column(
+                          children:[
+                            SizedBox(height: 30)
+                          ]
+                      )
+                    ],
+                )]
+              ),
           ),
         ]),
         ),
       ));
-    //)
-   // )
-    //);
   }
 }

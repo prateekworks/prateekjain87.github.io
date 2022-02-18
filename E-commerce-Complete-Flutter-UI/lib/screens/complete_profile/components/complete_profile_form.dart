@@ -290,7 +290,7 @@ class _CompleteProfileFormState extends State<CompleteProfileForm> {
 
 verifyotp(otp, firstname, lastname, email, password, password2, context) async {
   print("called");
-  var url = Uri.parse("http://192.168.0.109:3000/api/verify"); // iOS
+  var url = Uri.parse("http://192.168.1.104:3000/api/verify"); // iOS
   final http.Response response = await http.post(
     url,
     headers: <String, String>{
