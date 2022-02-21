@@ -29,6 +29,8 @@ class SearchField extends StatelessWidget {
       ),
       child: TextField(
       //onChanged: (value) => print(value),
+      readOnly: true,
+      enableInteractiveSelection: true,
       onTap: () {
                   showSearch(
                     context: context,
@@ -42,7 +44,7 @@ class SearchField extends StatelessWidget {
             border: InputBorder.none,
             focusedBorder: InputBorder.none,
             enabledBorder: InputBorder.none,
-            hintText: "Search product",
+            hintText: "GigId, Categories!",
             prefixIcon: Icon(Icons.search)),
       ),
     );
@@ -79,6 +81,8 @@ class CustomSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     searchResult.clear();
+    //find the elements that starts with the same query letters.
+    // allNames is a list that contains all your data ( you can replace it here by an http request or a query from your database )
     searchResult =
         allNames.where((element) => element.startsWith(query)).toList();
     return Container(
@@ -89,7 +93,7 @@ class CustomSearchDelegate extends SearchDelegate {
           children: List.generate(suggestion.length, (index) {
             var item = suggestion[index];
             return Card(
-              color: Colors.white,
+              color: Colors.orangeAccent,
               child: Container(padding: EdgeInsets.all(16), child: Text(item)),
             );
           })),

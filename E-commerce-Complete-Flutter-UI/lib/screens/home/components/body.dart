@@ -11,12 +11,16 @@ import 'home_header.dart';
 import 'popular_product.dart';
 import 'special_offers.dart';
 import 'fab.dart';
+int _rotation = 0;
+bool _showIcon = false;
 
 
 class Body extends StatefulWidget {
   @override
   _BodyState createState() => _BodyState();
 }
+
+
 class _BodyState extends State<Body> {
   late final Future storedFuture;
 
@@ -26,10 +30,12 @@ class _BodyState extends State<Body> {
      storedFuture = gigDetails();
   }
 
+  
+
   gigDetails() async {
     demoProducts = [];
     print("In Gig");
-    var url = Uri.parse("http://192.168.1.104:3000/api/getGigs");
+    var url = Uri.parse("http://192.168.0.109:3000/api/getGigs");
     final http.Response response = await http.post(
       url,
       headers: <String, String>{
@@ -113,9 +119,11 @@ class _BodyState extends State<Body> {
                   ),
                 );
               }
+              
               return SingleChildScrollView(
                 child: Column(
-                  children: [
+                children: <Widget>[  
+                //children: [
                     SizedBox(height: getProportionateScreenHeight(20)),
                     HomeHeader(),
                     SizedBox(height: getProportionateScreenWidth(10)),
@@ -125,7 +133,7 @@ class _BodyState extends State<Body> {
                     SizedBox(height: getProportionateScreenWidth(30)),
                     PopularProducts(),
                     SizedBox(height: getProportionateScreenWidth(30)),
-                  ],
+                ],
                 ),
               );
             default:
@@ -146,7 +154,7 @@ class _BodyState extends State<Body> {
               );
           }
         }
-        )
-      );
-  } 
+        )    
+      );  
+  }
 }

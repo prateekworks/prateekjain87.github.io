@@ -1,21 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:shop_app/components/product_card.dart';
-import 'package:shop_app/models/Product.dart';
 
-import '../../../size_config.dart';
-import 'section_title.dart';
+class FancyFloatingButton extends StatelessWidget {
+  FancyFloatingButton({@required this.onPressed, this.rotation, this.showIcon});
 
-class fab extends StatelessWidget {
-   @override
-  Widget build(BuildContext context) => new Scaffold(
-    floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(Icons.camera, color: Colors.white, size: 29,),
-        backgroundColor: Colors.black,
-        tooltip: 'Capture Picture',
-        elevation: 5,
-        splashColor: Colors.grey,
-    ),
-  );
+  final onPressed;
+  final rotation;
+  final showIcon;
 
+  @override
+  Widget build(BuildContext context) {
+    return RotatedBox(
+      quarterTurns: rotation,
+      child: RawMaterialButton(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 20.0,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              showIcon
+                  ? Icon(
+                      Icons.explore,
+                      color: Colors.tealAccent,
+                    )
+                  : Text(''),
+              const SizedBox(
+                width: 8.0,
+              ),
+              const Text(
+                'PURCHASE',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        fillColor: Colors.teal,
+        splashColor: Colors.green,
+        onPressed: onPressed,
+        shape: const StadiumBorder(),
+      ),
+    );
+  }
 }
