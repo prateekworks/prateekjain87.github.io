@@ -3,7 +3,7 @@ import 'package:shop_app/components/product_card.dart';
 import 'package:shop_app/models/Product.dart';
 import '../../../size_config.dart';
 import 'section_title.dart';
-
+import 'package:shop_app/screens/home/components/Special.dart';
 class SpecialOffers extends StatelessWidget {
   const SpecialOffers({
     Key? key,
@@ -18,7 +18,9 @@ class SpecialOffers extends StatelessWidget {
               EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
           child: SectionTitle(
             title: "Special for you",
-            press: () {},
+            press: () {
+              Navigator.pushNamed(context, Special.routeName,);
+            },
           ),
         ),
         SizedBox(height: getProportionateScreenWidth(20)),

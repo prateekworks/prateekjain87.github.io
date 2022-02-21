@@ -11,7 +11,7 @@ class SectionTitle extends StatelessWidget {
 
   final String title;
   final GestureTapCallback press;
-
+  
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -27,7 +27,7 @@ class SectionTitle extends StatelessWidget {
         GestureDetector(
           onTap: press,
           child: Text(
-            "See More",
+            "See Much",
             style: TextStyle(color: Color(0xFFBBBBBB)),
           ),
         ),

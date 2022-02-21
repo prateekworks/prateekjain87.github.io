@@ -16,10 +16,15 @@ import 'package:shop_app/screens/home/components/events_category.dart';
 import 'package:shop_app/screens/home/components/dailywage_category.dart';
 import 'package:shop_app/screens/home/components/misc_category.dart';
 import 'screens/sign_up/sign_up_screen.dart';
+import 'package:shop_app/screens/home/components/art_category.dart';
+import 'package:shop_app/screens/home/components/Popular.dart';
+import 'package:shop_app/screens/home/components/Special.dart';
 
 // We use name route
 // All our routes will be available here
 final Map<String, WidgetBuilder> routes = {
+  Special.routeName: (context) => Special(),
+  Popular.routeName: (context) => Popular(),
   SplashScreen.routeName: (context) => SplashScreen(),
   Art.routeName: (context) => Art(),
   CategorySelection.routeName: (context) => CategorySelection(),
